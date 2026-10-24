@@ -1,1 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choudhary Fuel - Pranav</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#eef2f7}
+.header{background:#0b5ed7;color:white;padding:18px;text-align:center;font-size:24px;font-weight:bold}
+.card{background:white;margin:12px auto;max-width:550px;padding:16px;border-radius:14px;box-shadow:0 3px 10px rgba(0,0,0,0.1)}
+h3{color:#0b5ed7;margin-bottom:8px}
+.row{display:flex;gap:8px}
+.row div{flex:1}
+label{font-size:12px;font-weight:bold;color:#555}
+input{width:100%;padding:11px;margin:4px 0 8px 0;border-radius:9px;border:1.5px solid #ccc;font-size:15px}
+.tt-box{border:2px solid #198754 !important;background:#e8f5e9;font-weight:bold}
+.btn{width:100%;padding:14px;border:none;border-radius:11px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px}
+.btn-blue{background:#0b5ed7;color:white}
+.btn-whatsapp{background:#25D366;color:white}
+.btn-red{background:#dc3545;color:white}
+.result{background:#fff3cd;border:2px dashed #ff9800;padding:15px;border-radius:10px;text-align:center;font-weight:bold;line-height:1.6;margin-top:12px}
+.history-item{background:#f8f9fa;padding:10px;border-radius:8px;margin:6px 0;border-left:4px solid #0b5ed7;font-size:14px}
+a{color:#0b5ed7;text-decoration:none;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="header">⛽ Choudhary Fuel - Pranav</div>
 
+<div class="card">
+<h3>👷 STAFF</h3>
+<input type="text" id="staff" placeholder="Staff ka naam likho - Ex: Raju">
+</div>
+
+<div class="card">
+<h3>🟢 PETROL</h3>
+<div class="row">
+<div><label>START</label><input type="number" id="ps"></div>
+<div><label>END</label><input type="number" id="pe"></div>
+</div>
+<div class="row">
+<div><label>TT</label><input type="number" id="ptt" class="tt-box" placeholder="5"></div>
+<div><label>PRICE</label><input type="number" id="pp" value="106.5"></div>
+</div>
+</div>
+
+<div class="card">
+<h3>🟡 DIESEL</h3>
+<div class="row">
+<div><label>START</label><input type="number" id="ds"></div>
+<div><label>END</label><input type="number" id="de"></div>
+</div>
+<div class="row">
+<div><label>TT</label><input type="number" id="dtt" class="tt-box" placeholder="5"></div>
+<div><label>PRICE</label><input type="number" id="dp" value="94.2"></div>
+</div>
+</div>
+
+<div class="card">
+<h3>💰 HISAB</h3>
+<div class="row">
+<div><label>ONLINE ₹</label><input type="number" id="online"></div>
+<div><label>UDHARI ₹</label><input type="number" id="udhari"></div>
+</div>
+<button class="btn btn-blue" onclick="calc()">CALCULATE & SAVE</button>
+<div class="result" id="res">Final Cash yaha dikhega</div>
+<button class="btn btn-whatsapp" onclick="shareWA()">📲 WhatsApp Pe Share Karo</button>
+<button class="btn btn-red" onclick="clearAll()">DAILY CLEAR</button>
+</div>
+
+<div class="card">
+<h3>📜 HISTORY</h3>
+<div id="historyList">Koi history nahi</div>
+<button class="btn btn-red" style="margin-top:10px" onclick="clearHistory()">Clear All History</button>
+</div>
+
+<div class="card" style="text-align:center">Pranav | <a href="tel:+917666172108">📞 +91 7666172108</a></div>
+
+<script>
+let historyData = JSON.parse(localStorage.getItem('cf_history') || '[]');
+let lastMsg = "";
+showHistory();
+function calc(){
+let staff=document.getElementById('staff').value.trim()||'Pranav';
+let ps=+document.getElementById('ps').value||0, pe=+document.getElementById('pe').value||0, ptt=+document.getElementById('ptt').value||0, pp=+document.getElementById('pp').value||0;
+let ds=+document.getElementById('ds').value||0, de=+document.getElementById('de').value||0, dtt=+document.getElementById('dtt').value||0, dp=+document.getElementById('dp').value||0;
+let online=+document.getElementById('online').value||0, udhari=+document.getElementById('udhari').value||0;
+let pNet=(pe-ps)-ptt, dNet=(de-ds)-dtt; if(pNet<0)pNet=0; if(dNet<0)dNet=0;
+let pAmt=pNet*pp, dAmt=dNet*dp;
+let finalCash=(pAmt+dAmt)-online-udhari;
+let now=new Date().toLocaleString('en-IN');
+document.getElementById('res').innerHTML=`Staff: ${staff}<br>Petrol: ${pNet.toFixed(2)}L = ₹${pAmt.toFixed(2)}<br>Diesel: ${dNet.toFixed(2)}L = ₹${dAmt.toFixed(2)}<br><b style="font-size:20px;color:#0b5ed7">Final Cash: ₹${finalCash.toFixed(2)}</b>`;
+lastMsg=`*⛽ Choudhary Fuel - Pranav*\n*Date:* ${now}\n*Staff:* ${staff}\n\n*PETROL:* ${pNet.toFixed(2)}L = ₹${pAmt.toFixed(2)}\n*DIESEL:* ${dNet.toFixed(2)}L = ₹${dAmt.toFixed(2)}\n\nTotal Sale: ₹${(pAmt+dAmt).toFixed(2)}\n- Online: ₹${online}\n- Udhari: ₹${udhari}\n\n*FINAL CASH: ₹${finalCash.toFixed(2)}*`;
+historyData.unshift({date:now, staff, pNet, dNet, finalCash, sale:pAmt+dAmt, msg:lastMsg});
+localStorage.setItem('cf_history', JSON.stringify(historyData));
+showHistory();
+}
+function shareWA(){if(!lastMsg){alert('Pehle CALCULATE dabao!'); return;} window.open("https://wa.me/?text="+encodeURIComponent(lastMsg), '_blank');}
+function showHistory(){
+let div=document.getElementById('historyList');
+if(historyData.length==0){div.innerHTML='Koi history nahi'; return;}
+div.innerHTML=historyData.map(h=>`<div class="history-item"><b>${h.date}</b> - ${h.staff}<br>Sale: ₹${h.sale.toFixed(0)} | Final: <b>₹${h.finalCash.toFixed(0)}</b><button style="float:right;background:#25D366;color:white;border:none;padding:3px 8px;border-radius:5px" onclick="window.open('https://wa.me/?text=${encodeURIComponent(h.msg)}','_blank')">WA</button><div style="clear:both"></div></div>`).join('');
+}
+function clearAll(){document.querySelectorAll('input').forEach(i=>{if(i.id!='pp'&&i.id!='dp')i.value='';});}
+function clearHistory(){if(confirm('Delete all history?')){historyData=[]; localStorage.removeItem('cf_history'); showHistory();}}
+</script>
+</body>
+</html>
